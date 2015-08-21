@@ -52,7 +52,7 @@ public class BoredomBusterBot {
 	}
 
 	private void handleRequest(JSONObject jsonObject) throws UnirestException {
-		System.out.println("Handling incoming request");
+		// System.out.println("Handling incoming request");
 		JSONArray results = jsonObject.getJSONArray("result");
 		for (int i = 0; i < results.length(); i++) {
 			int chatId = 0;
