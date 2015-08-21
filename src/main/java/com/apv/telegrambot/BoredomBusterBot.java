@@ -18,6 +18,10 @@ public class BoredomBusterBot {
 	private static final String IMGUR_BASE_URL = "https://api.imgur.com/3/topics/2/top/day/";
 	private static final String IMGUR_AUTH = "CLIENT-ID 77ce2c0bea5966a";
 
+	private String welcomeMessage = "Hello Pal! Looks like you are bored. Send /bored to me and kill you boredom.";
+	private String oopsMessage = "Oops! Something went wrong somewhere. Go ahead and try again. Send /bored to me.";
+	private String failureMessage = "I know you are bored but unless you tell me in a language I understand you will continue to be bored. Send /bored to me and I promise to kill you boredom.";
+
 	BoredomBusterBot() throws UnirestException {
 		poll(0);
 	}
@@ -51,23 +55,28 @@ public class BoredomBusterBot {
 		System.out.println("Handling incoming request");
 		JSONArray results = jsonObject.getJSONArray("result");
 		for (int i = 0; i < results.length(); i++) {
-			JSONObject object = (JSONObject) results.get(i);
-			JSONObject message = object.getJSONObject("message");
-			JSONObject chat = message.getJSONObject("chat");
-			int chatId = chat.getInt("id");
+			int chatId = 0;
+			try {
+				JSONObject object = (JSONObject) results.get(i);
+				JSONObject message = object.getJSONObject("message");
+				JSONObject chat = message.getJSONObject("chat");
+				chatId = chat.getInt("id");
 
-			if ("/bored".equals(message.opt("text"))
-					|| "@BoredomBusterBot".equals(message.opt("text"))
-					|| message.opt("new_chat_participant") != null) {
-				if (object.getInt("update_id") % 2 == 0) {
-					fetchFromXKCD(chatId);
+				if ("/bored".equals(message.opt("text"))
+						|| "@BoredomBusterBot".equals(message.opt("text"))
+						|| message.opt("new_chat_participant") != null) {
+					if (object.getInt("update_id") % 2 == 0) {
+						fetchFromXKCD(chatId);
+					} else {
+						fetchFromImgur(chatId);
+					}
+				} else if ("/start".equals(message.opt("text"))) {
+					sendMessage(chatId, welcomeMessage);
 				} else {
-					fetchFromImgur(chatId);
+					sendMessage(chatId, failureMessage);
 				}
-			} else if ("/start".equals(message.opt("text"))) {
-				sendWelcomeMessage(chatId);
-			} else {
-				sendFailureMessage(chatId);
+			} catch (Exception e) {
+				sendMessage(chatId, oopsMessage);
 			}
 		}
 	}
@@ -137,19 +146,6 @@ public class BoredomBusterBot {
 
 	// -------------------- Sending message ---------------------------------
 
-	private void sendFailureMessage(int chatId) throws UnirestException {
-		HttpResponse<JsonNode> asJson = Unirest
-				.post(SEND_MESSAGE_URL)
-				.field("chat_id", chatId)
-				.field("text",
-						"I know you are bored but unless you tell me in a language I understand you will continue to be bored. Send /bored to me and I promise to kill you boredom.")
-				.asJson();
-		if (asJson.getStatus() == 200) {
-			System.out.println("successfully sent failure message for "
-					+ chatId);
-		}
-	}
-
 	private Response buildSuccessMessage(int chatId, Comic comic) {
 		Response response = new Response();
 		response.setChatId(chatId);
@@ -171,17 +167,15 @@ public class BoredomBusterBot {
 		}
 	}
 
-	private void sendWelcomeMessage(int chatId) throws UnirestException {
-		HttpResponse<JsonNode> asJson = Unirest
-				.post(SEND_MESSAGE_URL)
-				.field("chat_id", chatId)
-				.field("text",
-						"Hello Pal! Looks like you are bored. Send /bored to me and kill you boredom.")
-				.asJson();
+	private void sendMessage(int chatId, String message)
+			throws UnirestException {
+		HttpResponse<JsonNode> asJson = Unirest.post(SEND_MESSAGE_URL)
+				.field("chat_id", chatId).field("text", message).asJson();
 		if (asJson.getStatus() == 200) {
-			System.out.println("successfully sent welcome message for "
+			System.out.println("successfully sent generic message for "
 					+ chatId);
 		}
+
 	}
 
 }
