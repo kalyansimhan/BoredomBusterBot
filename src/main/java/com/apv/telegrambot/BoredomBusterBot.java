@@ -43,10 +43,15 @@ public class BoredomBusterBot {
 	// ------------------- Generic message handlers -------------------
 
 	private int getUpdateId(JSONObject jsonObject) {
-		JSONArray jsonArray = jsonObject.getJSONArray("result");
-		if (jsonArray.length() > 0) {
-			JSONObject obj = (JSONObject) jsonArray.get(jsonArray.length() - 1);
-			return obj.getInt("update_id") + 1;
+		try {
+			JSONArray jsonArray = jsonObject.getJSONArray("result");
+			if (jsonArray.length() > 0) {
+				JSONObject obj = (JSONObject) jsonArray
+						.get(jsonArray.length() - 1);
+				return obj.getInt("update_id") + 1;
+			}
+		} catch (Exception e) {
+			return 0;
 		}
 		return 0;
 	}
