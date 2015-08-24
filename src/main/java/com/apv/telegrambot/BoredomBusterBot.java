@@ -18,9 +18,9 @@ public class BoredomBusterBot {
 	private static final String IMGUR_BASE_URL = "https://api.imgur.com/3/topics/2/top/day/";
 	private static final String IMGUR_AUTH = "CLIENT-ID 77ce2c0bea5966a";
 
-	private String welcomeMessage = "Hello Pal! Looks like you are bored. Send /bored to me and kill you boredom.";
+	private String welcomeMessage = "Hello Pal! Looks like you are bored. Send /bored to me and kill your boredom.";
 	private String oopsMessage = "Oops! Something went wrong somewhere. Go ahead and try again. Send /bored to me.";
-	private String failureMessage = "I know you are bored but unless you tell me in a language I understand you will continue to be bored. Send /bored to me and I promise to kill you boredom.";
+	private String failureMessage = "I know you are bored but unless you tell me in a language I understand you will continue to be bored. Send /bored to me and I promise to kill your boredom.";
 
 	BoredomBusterBot() throws UnirestException {
 		poll(0);
