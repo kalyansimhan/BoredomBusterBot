@@ -33,6 +33,7 @@ public class BoredomBusterBot {
 				.asJson();
 		JSONObject jsonObject = new JSONObject(asJson.getBody().getObject()
 				.toString());
+		System.out.println(jsonObject.toString());
 		if (asJson.getStatus() == 200 && jsonObject.getBoolean("ok")) {
 			int next = getUpdateId(jsonObject);
 			handleRequest(jsonObject);
@@ -67,18 +68,33 @@ public class BoredomBusterBot {
 				JSONObject chat = message.getJSONObject("chat");
 				chatId = chat.getInt("id");
 
-				if ("/bored".equals(message.opt("text"))
-						|| "@BoredomBusterBot".equals(message.opt("text"))
-						|| message.opt("new_chat_participant") != null) {
-					if (object.getInt("update_id") % 2 == 0) {
-						fetchFromXKCD(chatId);
+				String text = message.opt("text").toString();
+
+				if (text != null && !text.isEmpty()) {
+					if ("/bored".equals(text)
+							|| "@BoredomBusterBot".equals(text)
+							|| "/bored@BoredomBusterBot".equals(text)) {
+						if (object.getInt("update_id") % 2 == 0) {
+							fetchFromXKCD(chatId);
+						} else {
+							fetchFromImgur(chatId);
+						}
+					} else if ("/start".equals(text)
+							|| "/start@BoredomBusterBot".equals(text)) {
+						sendMessage(chatId, welcomeMessage);
+					} else if ((message.opt("new_chat_participant") != null)
+							|| (message.opt("left_chat_participant") != null)
+							|| (message.opt("new_chat_photo") != null)
+							|| (message.opt("delete_chat_photo") != null)) {
+						// do nothing
+					} else if ((text.startsWith("/") && !text
+							.contains("@BoredomBusterBot"))) {
+						// do nothing
 					} else {
-						fetchFromImgur(chatId);
+						sendMessage(chatId, failureMessage);
 					}
-				} else if ("/start".equals(message.opt("text"))) {
-					sendMessage(chatId, welcomeMessage);
 				} else {
-					sendMessage(chatId, failureMessage);
+					sendMessage(chatId, oopsMessage);
 				}
 			} catch (Exception e) {
 				sendMessage(chatId, oopsMessage);
