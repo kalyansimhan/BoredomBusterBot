@@ -33,7 +33,7 @@ public class BoredomBusterBot {
 				.asJson();
 		JSONObject jsonObject = new JSONObject(asJson.getBody().getObject()
 				.toString());
-		System.out.println(jsonObject.toString());
+//		System.out.println(jsonObject.toString());
 		if (asJson.getStatus() == 200 && jsonObject.getBoolean("ok")) {
 			int next = getUpdateId(jsonObject);
 			handleRequest(jsonObject);
